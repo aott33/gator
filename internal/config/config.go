@@ -8,15 +8,19 @@ import (
 	"os"
 )
 
-func Read(file string) Config {
+func Read() Config {
 	var cfg Config
 	
-	homeDir, _ := os.UserHomeDir()
-	fullPath := filepath.Join(homeDir, file)
-	jsonFile, err := os.Open(fullPath)
-	
+	fullPath, err := getConfigFilePath()
+	if err != nil {
+		fmt.Println(err)	
+		return Config{}
+	}
+
+	jsonFile, err := os.Open(fullPath)	
 	if err != nil {
 		fmt.Println(err)
+		return Config{}
 	}
 
 	defer jsonFile.Close()
@@ -24,16 +28,41 @@ func Read(file string) Config {
 	byteVal, err := io.ReadAll(jsonFile)
 	if err != nil {
 		fmt.Println(err)
+		return Config{}
 	}
 
 	err = json.Unmarshal(byteVal, &cfg)
 	if err != nil {
 		fmt.Println(err)
+		return Config{}
 	}
 
 	return cfg
 }
 
 func (c *Config) SetUser() {
+
+}
+
+func getConfigFilePath() (string, error) {
+
+	homeDir, err := os.UserHomeDir()
+
+	if err != nil {
+		return "", err
+	}
+
+	fullPath := filepath.Join(homeDir, configFileName)	
+
+	return fullPath, nil
+}
+
+func write(cfg Config) error {
+	fullPath, err := getConfigFilePath()
+	if err != nil {
+		fmt.Println(err)	
+		return Config{}
+	}
+
 
 }
