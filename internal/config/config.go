@@ -2,46 +2,47 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"path/filepath"
 	"io"
 	"os"
 )
 
-func Read() Config {
+func Read() (Config, error){
 	var cfg Config
 	
 	fullPath, err := getConfigFilePath()
 	if err != nil {
-		fmt.Println(err)	
-		return Config{}
+		return Config{}, err
 	}
 
 	jsonFile, err := os.Open(fullPath)	
 	if err != nil {
-		fmt.Println(err)
-		return Config{}
+		return Config{}, err
 	}
 
 	defer jsonFile.Close()
 
 	byteVal, err := io.ReadAll(jsonFile)
 	if err != nil {
-		fmt.Println(err)
-		return Config{}
+		return Config{}, err
 	}
 
 	err = json.Unmarshal(byteVal, &cfg)
 	if err != nil {
-		fmt.Println(err)
-		return Config{}
+		return Config{}, err
 	}
 
-	return cfg
+	return cfg, nil
 }
 
-func (c *Config) SetUser() {
+func (c *Config) SetUser(userName string) error {
+	c.CurrentUserName =  userName
+	err := write(*c)
+	if err != nil {
+		return err
+	}
 
+	return nil
 }
 
 func getConfigFilePath() (string, error) {
@@ -52,7 +53,7 @@ func getConfigFilePath() (string, error) {
 		return "", err
 	}
 
-	fullPath := filepath.Join(homeDir, configFileName)	
+	fullPath := filepath.Join(homeDir, "gator", configFileName)	
 
 	return fullPath, nil
 }
@@ -60,9 +61,25 @@ func getConfigFilePath() (string, error) {
 func write(cfg Config) error {
 	fullPath, err := getConfigFilePath()
 	if err != nil {
-		fmt.Println(err)	
-		return Config{}
+		return err 
 	}
 
+	jsonData, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	
+	jsonFile, err := os.Create(fullPath)	
+	if err != nil {
+		return err
+	}
 
+	defer jsonFile.Close()
+
+	_, err = jsonFile.Write(jsonData)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
