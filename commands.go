@@ -2,13 +2,14 @@ package main
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/aott33/gator/internal/config"
+	"github.com/aott33/gator/internal/database"
 )
 
 type state struct {
 	cfg		*config.Config
+	db		*database.Queries
 }
 
 type command struct {
@@ -19,21 +20,6 @@ type command struct {
 
 type commands struct {
 	m		map[string]func(*state, command) error
-}
-
-func handlerLogin(s *state, cmd command) error {
-	if len(cmd.args) == 0 {
-		return errors.New("username is required")
-	}
-
-	err := s.cfg.SetUser(cmd.args[0])
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Set user to %s\n",cmd.args[0])
-	
-	return nil
 }
 
 func (c *commands) run(s *state, cmd command) error {
