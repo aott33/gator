@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/aott33/gator/internal/database"
+	"github.com/google/uuid"
 )
 
  func handlerAgg(s *state, cmd command) error {
@@ -47,7 +50,17 @@ func scrapeFeeds(s *state) error {
 	fmt.Println(feedFetch.Channel.Title)
 
 	for i := range feedFetch.Channel.Item {
-		fmt.Println(feedFetch.Channel.Item[i].Title)	
+		publishDate := ?
+		post, err := s.db.CreatePosts(ctx, database.CreatePostsParams{
+			ID: uuid.New(),
+			CreatedAt: time.now(),
+			UpdatedAt: time.now(),
+			Title: feedFetch.Channel.Item[i].Title,
+			Url: feedFetch.Channel.Item[i].Url,
+			Description: feedFetch.Channel.Item[i].Description,
+
+
+		})	
 	}
 
 
